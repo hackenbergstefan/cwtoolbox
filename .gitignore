@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2023 Stefan Hackenberg
+#
+# SPDX-License-Identifier: MIT
+
+build
+.venv
+.vscode
+__pycache__
+.mypy_cache
+poetry.lock
+.cache
+chipwhisperer/

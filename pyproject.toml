@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: 2023 Stefan Hackenberg
+#
+# SPDX-License-Identifier: MIT
+
+[tool.poetry]
+name = "cwtoolbox"
+version = "0.1.0"
+description = "ChipWhisperer Toolbox"
+authors = [
+    "Stefan Hackenberg <mail@stefan-hackenberg.de>"
+]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.scripts]
+cw_xmlrpc_server = "cwtoolbox.bin.cw_xmlrpc_server:main"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "^1"
+chipwhisperer = "^5"
+reuse = "^1"
+jinja2 = "^3.1.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23"
+isort = "^5"
+mypy = "^0"
+pylint = "^2"
+pytest = "^6"
+types-tqdm = "^4"
+
+[tool.poetry.group.example.dependencies]
+jupyter = "^1"
+lascar = "^1"
+plotly = "^5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+allow_redefinition = true
+
+[[tool.mypy.overrides]]
+module = [
+    "lascar",
+    "numba",
+]
+ignore_missing_imports = true
+
+[tool.pylint]
+
+[tool.pylint.BASIC]
+good-names = ["i", "e"]
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = """
+    fixme,
+    logging-fstring-interpolation,
+    missing-class-docstring,
+    missing-function-docstring,
+    missing-module-docstring,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-branches,
+    too-many-return-statements,
+    redefined-builtin,
+"""
+
+[tool.pytest.ini_options]
+markers = [
+    "chipwhisperer",
+    "chipwhisperer_device",
+]
