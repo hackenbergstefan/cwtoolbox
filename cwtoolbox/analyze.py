@@ -13,16 +13,30 @@ np.seterr(divide="ignore")
 
 
 @njit()
-def u32_le(values, offset=0):
+def u32_be(values, offset=0):
     """
-    Convert list of bytes to u32 little endian.
-    Similar to `int.from_bytes(values, "little")` but in nopython mode
+    Convert list of bytes to u32 big endian.
+    Similar to `int.from_bytes(values, "big")` but in nopython mode
     """
     return (
         values[4 * offset + 3]
         + (values[4 * offset + 2] << 8)
         + (values[4 * offset + 1] << 16)
         + (values[4 * offset + 0] << 24)
+    )
+
+
+@njit()
+def u32_le(values, offset=0):
+    """
+    Convert list of bytes to u32 little endian.
+    Similar to `int.from_bytes(values, "little")` but in nopython mode
+    """
+    return (
+        values[4 * offset + 0]
+        + (values[4 * offset + 1] << 8)
+        + (values[4 * offset + 2] << 16)
+        + (values[4 * offset + 3] << 24)
     )
 
 

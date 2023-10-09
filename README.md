@@ -16,10 +16,10 @@ Unifying different ChipWhisperer devices and side-channel simulations to a commo
 
    ```sh
    git clone https://github.com/newaetech/chipwhisperer.git $HOME/work/chipwhisperer
-   export CWFIRMWARE=$HOME/chipwhisperer/hardware/victims/firmware
+   export CWFIRMWAREPATH=$HOME/chipwhisperer/hardware/victims/firmware
    ```
 
-   Tip: If you are using VSCode you can omit setting the environment variable globally by adding a `.env` file in you workspace-root with the content `CWFIRMWARE=$HOME/chipwhisperer/hardware/victims/firmware`.
+   Tip: If you are using VSCode you can omit setting the environment variable globally by adding a `.env` file in you workspace-root with the content `CWFIRMWAREPATH=$HOME/chipwhisperer/hardware/victims/firmware`.
 
 3. If necessary: Adjust udev rules as described here: [https://chipwhisperer.readthedocs.io/en/latest/linux-install.html#installing-chipwhisperer](https://chipwhisperer.readthedocs.io/en/latest/linux-install.html#installing-chipwhisperer)
 
@@ -29,13 +29,13 @@ Unifying different ChipWhisperer devices and side-channel simulations to a commo
 
    ```toml
    [tool.poetry.dependencies]
-   cwtoolbox = {git = "https://github.com/hackenbergstefan/cwtoolbox.git", tag="v0.2.0"}
+   cwtoolbox = {git = "https://github.com/hackenbergstefan/cwtoolbox.git", tag="v0.3.0"}
    ```
 
    `requirements.txt`:
 
    ```txt
-   git+https://github.com/hackenbergstefan/cwtoolbox.git@v0.2.0#egg=cwtoolbox
+   git+https://github.com/hackenbergstefan/cwtoolbox.git@v0.3.0#egg=cwtoolbox
    ```
 
 ### Windows
@@ -69,11 +69,11 @@ Unifying different ChipWhisperer devices and side-channel simulations to a commo
 
    ```toml
    [tool.poetry.dependencies]
-   cwtoolbox = {git = "https://github.com/hackenbergstefan/cwtoolbox.git", tag="v0.2.0"}
+   cwtoolbox = {git = "https://github.com/hackenbergstefan/cwtoolbox.git", tag="v0.3.0"}
    ```
 
    `requirements.txt`:
 
    ```txt
-   git+https://github.com/hackenbergstefan/cwtoolbox.git@v0.2.0#egg=cwtoolbox
+   git+https://github.com/hackenbergstefan/cwtoolbox.git@v0.3.0#egg=cwtoolbox
    ```
