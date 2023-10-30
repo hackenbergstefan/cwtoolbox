@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+
+"""Utility functions for analyzing traces."""
+
 import random
 
 import lascar
@@ -13,10 +16,23 @@ np.seterr(divide="ignore")
 
 
 @njit()
-def u32_be(values, offset=0):
+def u32_be(values, offset: int = 0) -> int:
     """
     Convert list of bytes to u32 big endian.
-    Similar to `int.from_bytes(values, "big")` but in nopython mode
+
+    Similar to `int.from_bytes(values, "big")` but in nopython mode.
+
+    Parameters
+    ----------
+    values
+        List of bytes to be converted to u32 big endian.
+    offset
+        Index of the start byte (default is 0).
+
+    Returns
+    -------
+    int
+        The resulting u32 big endian.
     """
     return (
         values[4 * offset + 3]
@@ -29,8 +45,21 @@ def u32_be(values, offset=0):
 @njit()
 def u32_le(values, offset=0):
     """
-    Convert list of bytes to u32 little endian.
-    Similar to `int.from_bytes(values, "little")` but in nopython mode
+    Convert list of bytes to u32 big endian.
+
+    Similar to `int.from_bytes(values, "little")` but in nopython mode.
+
+    Parameters
+    ----------
+    values
+        List of bytes to be converted to u32 little endian.
+    offset
+        Index of the start byte (default is 0).
+
+    Returns
+    -------
+    int
+        The resulting u32 little endian.
     """
     return (
         values[4 * offset + 0]
@@ -41,6 +70,25 @@ def u32_le(values, offset=0):
 
 
 def cpa(dataset, selection_functions, guess_range=range(1), higherorder_rois=None):
+    """
+    Perform a CPA analysis.
+
+    Parameters
+    ----------
+    dataset
+        A dictionary containing the trace and metadata.
+    selection_functions
+        A dictionary of selection functions.
+    guess_range
+        The range of possible key guesses.
+    higherorder_rois
+        A list of tuples specifying the ROIs for higher order processing.
+
+    Returns
+    -------
+        The results of the CPA analysis.
+    """
+
     class CpaOutput(lascar.OutputMethod):
         def __init__(self, *engines):
             super().__init__(*engines)
@@ -92,6 +140,27 @@ def cpa_ranking(
     guess_range=range(256),
     higherorder_rois=None,
 ):
+    """
+    Perform a CPA ranking analysis.
+
+    Parameters
+    ----------
+    dataset
+        A dictionary containing the trace and some metadata.
+    selection_function
+        The selection function.
+    correct_key
+        The correct key.
+    guess_range
+        The range of possible key guesses.
+    higherorder_rois
+        A list of tuples specifying the ROIs for higher order processing.
+
+    Returns
+    -------
+        The results of the CPA ranking analysis.
+    """
+
     class CpaOutput(lascar.OutputMethod):
         def __init__(self, *engines):
             super().__init__(*engines)
@@ -130,6 +199,23 @@ def cpa_ranking(
 
 
 def cpa_leakage_rate(dataset, selection_function, randoms=16):
+    """
+    Compute the leakage rate for a CPA analysis.
+
+    Parameters
+    ----------
+    dataset
+        A dictionary containing the trace and some metadata.
+    selection_function
+        The selection function.
+    randoms
+        The number of randoms.
+
+    Returns
+    -------
+        The leakage rate for a CPA analysis.
+    """
+
     class CpaOutput(lascar.OutputMethod):
         def __init__(self, *engines):
             super().__init__(*engines)
@@ -164,6 +250,23 @@ def cpa_leakage_rate(dataset, selection_function, randoms=16):
 
 
 def ttest(dataset, selection_function, correct_key):
+    """
+    Perform a t-test analysis.
+
+    Parameters
+    ----------
+    dataset
+        A dictionary containing the trace and some metadata.
+    selection_function
+        The selection function.
+    correct_key
+        The correct key.
+
+    Returns
+    -------
+        The results of the t-test analysis.
+    """
+
     class TtestOutput(lascar.OutputMethod):
         def __init__(self, *engines):
             super().__init__(*engines)
@@ -194,6 +297,25 @@ def ttest(dataset, selection_function, correct_key):
 
 
 def snr(dataset, selection_function, selection_range, correct_key):
+    """
+    Compute Signal-to-Noise-Ratio for a CPA analysis.
+
+    Parameters
+    ----------
+    dataset
+        A dictionary containing the trace and some metadata.
+    selection_function
+        The selection function.
+    selection_range
+        The range to select the signal from the trace.
+    correct_key
+        The correct key.
+
+    Returns
+    -------
+        The SNR.
+    """
+
     class SnrOutput(lascar.OutputMethod):
         def __init__(self, *engines):
             super().__init__(*engines)
@@ -207,7 +329,7 @@ def snr(dataset, selection_function, selection_range, correct_key):
 
     engines = [
         lascar.SnrEngine(
-            name=f"ttest {guess}",
+            name=f"snr {guess}",
             partition_function=selection_function(guess),
             partition_range=selection_range,
         )
@@ -225,6 +347,23 @@ def snr(dataset, selection_function, selection_range, correct_key):
 
 
 def cpa_evolution(dataset, selection_function, guess_range=range(256)):
+    """
+    Compute the CPA evolution.
+
+    Parameters
+    ----------
+    dataset
+        A dictionary containing the trace and some metadata.
+    selection_function
+        The selection function.
+    guess_range
+        The range of possible key guesses.
+
+    Returns
+    -------
+        The CPA evolution.
+    """
+
     class CpaOutput(lascar.OutputMethod):
         def __init__(self, *engines):
             super().__init__(*engines)

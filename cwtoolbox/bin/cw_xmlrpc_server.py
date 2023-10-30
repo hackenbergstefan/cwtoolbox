@@ -4,6 +4,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+
+"""Start XML-RPC Server."""
+
 import argparse
 import logging
 import xmlrpc
@@ -15,6 +18,7 @@ logging.basicConfig(level="debug")
 
 
 def main():
+    """Start XML-RPC Server."""
     parser = argparse.ArgumentParser(
         "ChipWhisperer XMLRPC Server",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -39,7 +43,10 @@ def main():
         allow_none=True,
         use_builtin_types=True,
     ) as server:
-        server.register_instance(cwtoolbox.cw.CwCaptureSimpleSerialRpcService())
+        server.register_instance(
+            cwtoolbox.cw.CwCaptureSimpleSerialRpcService(),
+            allow_dotted_names=True,
+        )
         server.register_introspection_functions()
         server.serve_forever()
 

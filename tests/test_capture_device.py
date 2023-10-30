@@ -50,7 +50,7 @@ def test_capture_cw(capture):
     capture.compile(code='asm("nop");')
     capture.flash()
     with capture.connected():
-        trace = capture.capture_single_trace(number_of_samples=100, input=[0])
+        trace, _ = capture.capture_single_trace(number_of_samples=100, input=[0])
     assert len(trace) == 100
 
     trace = capture.capture(
@@ -60,3 +60,13 @@ def test_capture_cw(capture):
     )
     assert len(trace) == 10
     assert trace.dtype == np.dtype([("trace", "f8", (100,)), ("input", "u1", (1,))])
+
+    if "CWNANO" in capture.cw_platform:
+        # CWNANO does not support automatic recognition of number_of_samples
+        return
+
+    trace = capture.capture(
+        number_of_traces=10,
+        input=lambda _: [0],
+    )
+    assert len(trace) > 0
