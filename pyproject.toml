@@ -2,75 +2,52 @@
 #
 # SPDX-License-Identifier: MIT
 
-[tool.poetry]
+[project]
 name = "cwtoolbox"
-version = "0.5.0"
+version = "0.10.4"
 description = "ChipWhisperer Toolbox"
 authors = [
-    "Stefan Hackenberg <mail@stefan-hackenberg.de>"
+    { "name" = "Stefan Hackenberg", "email" = "mail@stefan-hackenberg.de" },
 ]
 license = "MIT"
 readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "lascar>=1.1",
+    "numpy>=2.0.2",
+    "chipwhisperer>=5.7.0",
+    "jinja2>=3.1.4",
+]
 
-[tool.poetry.scripts]
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.7.1",
+    "mypy>=1.13.0",
+    "pytest>=8.3.3",
+    "types-tqdm>=4.66.0.20240417",
+]
+examples = ["jupyter>=1.1.1", "plotly>=5.24.1"]
+
+[project.scripts]
 cw_xmlrpc_server = "cwtoolbox.bin.cw_xmlrpc_server:main"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-numpy = "^1"
-chipwhisperer = "^5"
-reuse = "^1"
-jinja2 = "^3.1.2"
-
-[tool.poetry.group.dev.dependencies]
-black = "^23"
-isort = "^5"
-mypy = "^0"
-pydocstyle = "^6.3.0"
-pylint = "^2"
-pytest = "^6"
-types-tqdm = "^4"
-
-[tool.poetry.group.example.dependencies]
-jupyter = "^1"
-lascar = "^1"
-plotly = "^5"
-
+[tool.pdm]
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.mypy]
 allow_redefinition = true
 
 [[tool.mypy.overrides]]
-module = [
-    "lascar",
-    "numba",
-]
+module = ["lascar", "numba"]
 ignore_missing_imports = true
 
-[tool.pylint]
-
-[tool.pylint.BASIC]
-good-names = ["i", "e"]
-
-[tool.pylint.'MESSAGES CONTROL']
-disable = """
-    fixme,
-    logging-fstring-interpolation,
-    missing-class-docstring,
-    missing-function-docstring,
-    missing-module-docstring,
-    too-few-public-methods,
-    too-many-arguments,
-    too-many-branches,
-    too-many-return-statements,
-    redefined-builtin,
-"""
-
 [tool.pytest.ini_options]
-markers = [
-    "chipwhisperer",
-    "chipwhisperer_device",
-]
+markers = ["chipwhisperer", "chipwhisperer_device"]
+
+[tool.ruff]
+line-length = 100
+indent-width = 4
+[tool.ruff.lint]
+select = ["E", "F", "I", "PL", "W"]

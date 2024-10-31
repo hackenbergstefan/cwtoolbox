@@ -14,6 +14,9 @@ from numba import njit
 lascar.logger.setLevel(lascar.logging.CRITICAL)
 np.seterr(divide="ignore")
 
+hamming = lascar.hamming
+"""Intentional input for easier import."""
+
 
 @njit()
 def u32_be(values, offset: int = 0) -> int:
@@ -69,20 +72,31 @@ def u32_le(values, offset=0):
     )
 
 
-def cpa(dataset, selection_functions, guess_range=range(1), higherorder_rois=None):
+def cpa(  # noqa: PLR0913
+    dataset,
+    selection_functions,
+    guess_range=range(1),
+    higherorder_rois=None,
+    progressbar=False,
+    batch_size="auto",
+):
     """
     Perform a CPA analysis.
 
     Parameters
     ----------
     dataset
-        A dictionary containing the trace and metadata.
+        A dictionary containing the trace and metadata or a lascar.AbstractContainer.
     selection_functions
         A dictionary of selection functions.
     guess_range
         The range of possible key guesses.
     higherorder_rois
         A list of tuples specifying the ROIs for higher order processing.
+    progressbar
+        Show lascar progressbar or not.
+    batch_size
+        Batch size for lascar.Session.
 
     Returns
     -------
@@ -102,12 +116,15 @@ def cpa(dataset, selection_functions, guess_range=range(1), higherorder_rois=Non
             else:
                 self.result = results[0]
 
-    trace = lascar.TraceBatchContainer(dataset["trace"], dataset)
+    if isinstance(dataset, lascar.Container):
+        trace = dataset
+    else:
+        trace = lascar.TraceBatchContainer(dataset["trace"], dataset)
     if higherorder_rois:
         trace.leakage_processing = lascar.CenteredProductProcessing(
             container=trace,
             rois=higherorder_rois,
-            batch_size=100_000,
+            batch_size="auto",
         )
 
     selection_functions = {name: njit()(f) for name, f in selection_functions.items()}
@@ -125,12 +142,10 @@ def cpa(dataset, selection_functions, guess_range=range(1), higherorder_rois=Non
         trace,
         engines=engines,
         output_method=output_methods,
-        progressbar=False,
+        progressbar=progressbar,
     )
-    session.run(batch_size=100_000)
-    return [
-        (output_method.name, output_method.result) for output_method in output_methods
-    ]
+    session.run(batch_size=batch_size)
+    return [(output_method.name, output_method.result) for output_method in output_methods]
 
 
 def cpa_ranking(
@@ -169,9 +184,7 @@ def cpa_ranking(
 
         def _update(self, engine, results):
             maxs = np.argsort(np.max(np.abs(results), axis=1))[::-1]
-            self.result.append(
-                (engine.finalize_step[-1], np.where(maxs == correct_key)[0][0])
-            )
+            self.result.append((engine.finalize_step[-1], np.where(maxs == correct_key)[0][0]))
 
     trace = lascar.TraceBatchContainer(dataset["trace"], dataset)
     if higherorder_rois:
@@ -223,9 +236,7 @@ def cpa_leakage_rate(dataset, selection_function, randoms=16):
 
         def _update(self, engine, results):
             resabs = np.abs(results)
-            self.result.append(
-                (engine.finalize_step[-1], -np.std(results[1:]) / np.max(resabs[0]))
-            )
+            self.result.append((engine.finalize_step[-1], -np.std(results[1:]) / np.max(resabs[0])))
 
     trace = lascar.TraceBatchContainer(dataset["trace"], dataset)
 
