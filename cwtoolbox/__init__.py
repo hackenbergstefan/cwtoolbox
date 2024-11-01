@@ -13,14 +13,16 @@ import numpy as np
 import numpy.typing
 import tqdm
 
+type InputFunction = Callable[[int], bytes | List[int]]
+
 
 def input_dict_to_array(
     number_of_traces: int,
     number_of_samples: int,
-    input: dict[str, Callable[[int], Union[bytes, List[int]]]],
+    input: dict[str, InputFunction],
     additional_fields: dict[
         str,
-        Callable[[numpy.typing.NDArray], Union[bytes, List[int]]],
+        Callable[[numpy.typing.NDArray], bytes | List[int]],
     ],
 ) -> numpy.typing.NDArray:
     """Convert dict of input functions to numpy array of fitting size."""
@@ -30,7 +32,9 @@ def input_dict_to_array(
         dtype = np.dtype([])
     else:
         dtype = np.dtype([("trace", "f8", (number_of_samples,))])
-    dtype = np.dtype(dtype.descr + [(name, "u1", (len(func(0)),)) for name, func in input.items()])
+    dtype = np.dtype(
+        dtype.descr + [(name, "u1", (len(func(0)),)) for name, func in input.items()]
+    )
     data = np.empty(number_of_traces, dtype=dtype)
     for name, func in additional_fields.items():
         dtype = np.dtype(dtype.descr + [(name, "u4", np.array(func(data[0])).shape)])
@@ -116,7 +120,7 @@ class CaptureDevice:
     def capture(
         self,
         number_of_traces: int,
-        input: dict[str, Callable[[int], Union[bytes, List[int]]]],
+        input: InputFunction | dict[str, InputFunction],
         additional_fields: Optional[
             dict[str, Callable[[numpy.typing.NDArray], Union[bytes, List[int]]]]
         ] = None,
@@ -152,6 +156,10 @@ class CaptureDevice:
 
         """
         additional_fields = additional_fields or {}
+
+        if callable(input):
+            input = {"input": input}
+
         if number_of_samples == 0:
             with self.connected():
                 self.reset_target()
@@ -187,7 +195,7 @@ class CaptureDevice:
     def capture_yield(
         self,
         number_of_traces: int,
-        input: dict[str, Callable[[int], Union[bytes, List[int]]]],
+        input: InputFunction | dict[str, InputFunction],
         number_of_samples: int = 0,
     ) -> Iterable[Tuple[int, dict[str, List[int]], numpy.typing.NDArray]]:
         """
@@ -216,6 +224,9 @@ class CaptureDevice:
         """
         assert number_of_samples != 0
 
+        if callable(input):
+            input = {"input": input}
+
         with self.connected():
             self.reset_target()
             for i in tqdm.tqdm(range(number_of_traces)):
@@ -234,7 +245,7 @@ class CaptureDevice:
     def capture_single_trace(
         self,
         number_of_samples: int,
-        input: Union[Iterable[int], bytes],
+        input: Iterable[int] | bytes,
         read_output: bool = False,
     ) -> Tuple[numpy.typing.NDArray, Optional[bytes]]:
         """
@@ -323,7 +334,7 @@ class CaptureDevice:
     def capture_container(
         self,
         number_of_traces: int,
-        input: dict[str, Callable[[int], Union[bytes, List[int]]]],
+        input: InputFunction | dict[str, InputFunction],
         additional_fields: dict[
             str,
             Callable[[numpy.typing.NDArray], Union[bytes, List[int]]],
@@ -374,7 +385,7 @@ class CaptureContainer(lascar.AbstractContainer):
     def __init__(  # noqa: PLR0913
         self,
         device: CaptureDevice,
-        input: dict[str, Callable[[int], Union[bytes, List[int]]]],
+        input: InputFunction | dict[str, InputFunction],
         additional_fields: dict[
             str,
             Callable[[numpy.typing.NDArray], Union[bytes, List[int]]],
@@ -411,7 +422,7 @@ class CaptureContainer(lascar.AbstractContainer):
             Additional keyword arguments.
         """
         self.device = device
-        self.input = input
+        self.input = {"input": input} if callable(input) else input
         self.additional_fields = additional_fields
         self.number_of_samples = number_of_samples
         self.sample_range = sample_range
@@ -450,9 +461,11 @@ class CaptureContainer(lascar.AbstractContainer):
             values_array[name] = func(values_array)
         return lascar.Trace(
             np.array(
-                leakage[self.sample_range[0] : self.sample_range[1]]
-                if self.sample_range
-                else leakage,
+                (
+                    leakage[self.sample_range[0] : self.sample_range[1]]
+                    if self.sample_range
+                    else leakage
+                ),
                 dtype=np.float32,
             ),
             values_array,
