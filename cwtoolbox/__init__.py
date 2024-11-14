@@ -13,7 +13,7 @@ import numpy as np
 import numpy.typing
 import tqdm
 
-type InputFunction = Callable[[int], bytes | List[int]]
+InputFunction = Callable[[int], bytes | List[int]]
 
 
 def input_dict_to_array(
