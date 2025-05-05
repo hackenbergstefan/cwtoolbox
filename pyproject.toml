@@ -4,7 +4,7 @@
 
 [project]
 name = "cwtoolbox"
-version = "0.10.7"
+version = "0.10.8"
 description = "ChipWhisperer Toolbox"
 authors = [
     { "name" = "Stefan Hackenberg", "email" = "mail@stefan-hackenberg.de" },

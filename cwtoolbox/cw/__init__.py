@@ -240,7 +240,7 @@ class CwCaptureSimpleSerial(CaptureDevice):
         # pylint: disable=line-too-long
         # From: https://github.com/newaetech/chipwhisperer/blob/38e2ddca5bce4e862440af7de4c83486c54a614d/software/chipwhisperer/__init__.py#L153
         scope = cw.scope(sn=serial_number)
-        scope.default_setup()
+        scope.default_setup(verbose=False)
         prog = cw.programmers.XMEGAProgrammer()
         prog.scope = scope
         try:
@@ -262,7 +262,7 @@ class CwCaptureSimpleSerial(CaptureDevice):
         """Connect to the target device."""
         self._set_cw_serial_number()
         self.scope = cw.scope(sn=self.cw_serial_number)
-        self.scope.default_setup()
+        self.scope.default_setup(verbose=False)
         self.target = cw.target(self.scope, target_type=cw.targets.SimpleSerial2)
 
     def disconnect(self):
